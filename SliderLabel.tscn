@@ -1,0 +1,103 @@
+[gd_scene load_steps=2 format=2]
+
+[sub_resource type="GDScript" id=1]
+script/source = "tool
+extends Label
+
+const SLIDER_WARNING = \"SliderLabel needs to be a child of a Slider control (HSlider or VSlider).\"
+
+enum VisibilityRule {ON_CLICK, ON_HOVER, ON_FOCUS, ALWAYS}
+enum Placement {TOP_RIGHT, BOTTOM_LEFT}
+
+export(VisibilityRule) var visibility_rule: int = VisibilityRule.ON_HOVER
+export(Placement) var placement: int = Placement.TOP_RIGHT
+export var separation := 4
+
+var slider: Slider
+var vertical: bool
+
+func _ready() -> void:
+	if Engine.editor_hint:
+		return
+	
+	slider = get_parent() as Slider
+	assert(slider != null, SLIDER_WARNING)
+	if slider is VSlider:
+		vertical = true
+	
+	slider.connect(\"value_changed\", self, \"update_with_discard\")
+	
+	if visibility_rule == VisibilityRule.ALWAYS:
+		show()
+	else:
+		hide()
+		
+		match visibility_rule:
+			VisibilityRule.ON_CLICK:
+				slider.connect(\"gui_input\", self, \"_on_slider_gui_input\")
+			VisibilityRule.ON_HOVER:
+				slider.connect(\"mouse_entered\", self, \"_on_slider_hover_focus\", [true])
+				slider.connect(\"mouse_exited\", self, \"_on_slider_hover_focus\", [false])
+			VisibilityRule.ON_FOCUS:
+				slider.connect(\"focus_entered\", self, \"_on_slider_hover_focus\", [true])
+				slider.connect(\"focus_exited\", self, \"_on_slider_hover_focus\", [false])
+	
+	update_label()
+
+func _on_slider_gui_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton:
+		visible = event.pressed
+		update_label()
+
+func _on_slider_hover_focus(hover: bool):
+	visible = hover
+	update_label()
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_PARENTED:
+		update_configuration_warning()
+
+func update_with_discard(discard):
+	update_label()
+
+func update_label():
+	if not is_visible_in_tree():
+		return
+	
+	text = str(slider.value)
+	hide()
+	show()
+	rect_size = Vector2()
+	
+	var grabber_size := slider.get_icon(\"Grabber\").get_size()
+	if vertical:
+		rect_position.y = (1.0 - slider.ratio) * (slider.rect_size.y - grabber_size.y) + grabber_size.y * 0.5 - rect_size.y * 0.5
+		if placement == Placement.TOP_RIGHT:
+			rect_position.x = slider.rect_size.x + separation
+		else:
+			rect_position.x = -rect_size.x - separation
+	else:
+		rect_position.x = slider.ratio * (slider.rect_size.x - grabber_size.x) + grabber_size.x * 0.5 - rect_size.x * 0.5
+		if placement == Placement.TOP_RIGHT:
+			rect_position.y = -rect_size.y - separation
+		else:
+			rect_position.y = slider.rect_size.y + separation
+
+func _get_configuration_warning() -> String:
+	if not get_parent() is Slider:
+		return SLIDER_WARNING
+	else:
+		return \"\"
+"
+
+[node name="SliderLabel" type="Label"]
+margin_bottom = 14.0
+size_flags_horizontal = 4
+text = "100"
+align = 1
+valign = 1
+script = SubResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+visibility_rule = 0
