@@ -1,31 +1,41 @@
-[gd_scene load_steps=2 format=2]
-
-[sub_resource type="GDScript" id=1]
-script/source = "tool
+tool
 extends Label
 
-const SLIDER_WARNING = \"SliderLabel needs to be a child of a Slider control (HSlider or VSlider).\"
+const SLIDER_WARNING = "SliderLabel needs to be a child of a Slider control (HSlider or VSlider)."
+const SLIDER_WARNING2 = "custom_slider_path needs to point to a Slider control (HSlider or VSlider)."
 
 enum VisibilityRule {ON_CLICK, ON_HOVER, ON_FOCUS, ALWAYS}
 enum Placement {TOP_RIGHT, BOTTOM_LEFT}
 
 export(VisibilityRule) var visibility_rule: int = VisibilityRule.ON_HOVER
 export(Placement) var placement: int = Placement.TOP_RIGHT
+export var custom_slider_path: NodePath setget set_custom_path
 export var separation := 4
+export var custom_format := ""
 
 var slider: Slider
 var vertical: bool
+
+func _init() -> void:
+	align = Label.ALIGN_CENTER
+	valign = Label.VALIGN_CENTER
+	size_flags_horizontal = SIZE_SHRINK_CENTER
+	text = "100"
 
 func _ready() -> void:
 	if Engine.editor_hint:
 		return
 	
-	slider = get_parent() as Slider
+	if custom_slider_path.is_empty():
+		slider = get_parent() as Slider
+	else:
+		slider = get_node(custom_slider_path) as Slider
 	assert(slider != null, SLIDER_WARNING)
+	
 	if slider is VSlider:
 		vertical = true
 	
-	slider.connect(\"value_changed\", self, \"update_with_discard\")
+	slider.connect("value_changed", self, "update_with_discard")
 	
 	if visibility_rule == VisibilityRule.ALWAYS:
 		show()
@@ -34,13 +44,13 @@ func _ready() -> void:
 		
 		match visibility_rule:
 			VisibilityRule.ON_CLICK:
-				slider.connect(\"gui_input\", self, \"_on_slider_gui_input\")
+				slider.connect("gui_input", self, "_on_slider_gui_input")
 			VisibilityRule.ON_HOVER:
-				slider.connect(\"mouse_entered\", self, \"_on_slider_hover_focus\", [true])
-				slider.connect(\"mouse_exited\", self, \"_on_slider_hover_focus\", [false])
+				slider.connect("mouse_entered", self, "_on_slider_hover_focus", [true])
+				slider.connect("mouse_exited", self, "_on_slider_hover_focus", [false])
 			VisibilityRule.ON_FOCUS:
-				slider.connect(\"focus_entered\", self, \"_on_slider_hover_focus\", [true])
-				slider.connect(\"focus_exited\", self, \"_on_slider_hover_focus\", [false])
+				slider.connect("focus_entered", self, "_on_slider_hover_focus", [true])
+				slider.connect("focus_exited", self, "_on_slider_hover_focus", [false])
 	
 	update_label()
 
@@ -64,12 +74,16 @@ func update_label():
 	if not is_visible_in_tree():
 		return
 	
-	text = str(slider.value)
+	if custom_format.empty():
+		text = str(slider.value)
+	else:
+		text = custom_format % slider.value
+	
 	hide()
 	show()
 	rect_size = Vector2()
 	
-	var grabber_size := slider.get_icon(\"Grabber\").get_size()
+	var grabber_size := slider.get_icon("Grabber").get_size()
 	if vertical:
 		rect_position.y = (1.0 - slider.ratio) * (slider.rect_size.y - grabber_size.y) + grabber_size.y * 0.5 - rect_size.y * 0.5
 		if placement == Placement.TOP_RIGHT:
@@ -84,20 +98,14 @@ func update_label():
 			rect_position.y = slider.rect_size.y + separation
 
 func _get_configuration_warning() -> String:
-	if not get_parent() is Slider:
-		return SLIDER_WARNING
+	if custom_slider_path.is_empty():
+		if not get_parent() is Slider:
+			return SLIDER_WARNING
 	else:
-		return \"\"
-"
+		if not get_node(custom_slider_path) is Slider:
+			return SLIDER_WARNING2
+	return ""
 
-[node name="SliderLabel" type="Label"]
-margin_bottom = 14.0
-size_flags_horizontal = 4
-text = "100"
-align = 1
-valign = 1
-script = SubResource( 1 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
-visibility_rule = 0
+func set_custom_path(path: NodePath):
+	custom_slider_path = path
+	update_configuration_warning()
