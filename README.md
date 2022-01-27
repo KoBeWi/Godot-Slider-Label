@@ -28,7 +28,7 @@ Controls when the label will display. The options are:
 
 - On Focus - label will display when it's currently focused. Works also with keyboard focus.
 
-![](https://github.com/KoBeWi/Godot-Slider-Label/blob/master/Media/ReadmeShowHover.gif)
+![](https://github.com/KoBeWi/Godot-Slider-Label/blob/master/Media/ReadmeShowFocus.gif)
 
 - Always - label will display.
 
@@ -38,18 +38,18 @@ Controls when the label will display. The options are:
 
 Determines the side of the slider on which the label will be placed. Top/Bottom applies to HSlider and Right/Left to VSlider.
 
-![](https://github.com/KoBeWi/Godot-Slider-Label/blob/master/Media/ReadmePlacementTopLeft.png)
-![](https://github.com/KoBeWi/Godot-Slider-Label/blob/master/Media/ReadmePlacementBottomRight.png)
+![](https://github.com/KoBeWi/Godot-Slider-Label/blob/master/Media/ReadmePlacementTopRight.png)
+![](https://github.com/KoBeWi/Godot-Slider-Label/blob/master/Media/ReadmePlacementBottomLeft.png)
 
 ### Separation
 
 The space in pixels between label's and slider's rects.
 
-![](https://github.com/KoBeWi/Godot-Slider-Label/blob/master/Media/ReadmeSeparation.png)
+![](https://github.com/KoBeWi/Godot-Slider-Label/blob/master/Media/ReadmeSeparation.gif)
 
 ### Custom Format
 
-Specifies the custom formatting for the value display. Requires exactly one placeholder (`%s`/`%d`/`%f`). You can also use it to display suffixes etc. Leave empty for no formatting.
+Specifies the custom format for the value display. Requires exactly one placeholder (`%s`/`%d`/`%f`). You can also use it to display suffixes etc. Leave empty for no formatting.
 
 ![](https://github.com/KoBeWi/Godot-Slider-Label/blob/master/Media/ReadmeFormat.gif)
 
