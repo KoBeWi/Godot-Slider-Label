@@ -9,18 +9,20 @@ enum Placement {TOP_RIGHT, BOTTOM_LEFT}
 
 export(VisibilityRule) var visibility_rule: int = VisibilityRule.ON_HOVER
 export(Placement) var placement: int = Placement.TOP_RIGHT
-export var custom_slider_path: NodePath setget set_custom_path
 export var separation := 4
 export var custom_format := ""
+export var custom_slider_path: NodePath setget set_custom_path
 
 var slider: Slider
 var vertical: bool
 
-func _init() -> void:
-	align = Label.ALIGN_CENTER
-	valign = Label.VALIGN_CENTER
-	size_flags_horizontal = SIZE_SHRINK_CENTER
-	text = "100"
+func _enter_tree() -> void:
+	if not has_meta("_edit_initialized_"):
+		set_meta("_edit_initialized_", true)
+		align = Label.ALIGN_CENTER
+		valign = Label.VALIGN_CENTER
+		size_flags_horizontal = SIZE_SHRINK_CENTER
+		text = "100"
 
 func _ready() -> void:
 	if Engine.editor_hint:
