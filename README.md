@@ -58,3 +58,8 @@ Specifies the custom format for the value display. Requires exactly one placehol
 Overrides the default behavior of using the parent. Useful when you want to put the label next to your slider, e.g. in a container.
 
 ![](https://github.com/KoBeWi/Godot-Slider-Label/blob/master/Media/ReadmePath.gif)
+
+___
+You can find all my addons on my [profile page](https://github.com/KoBeWi).
+
+<a href='https://ko-fi.com/W7W7AD4W4' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://cdn.ko-fi.com/cdn/kofi1.png?v=3' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
