@@ -11,7 +11,7 @@ enum Placement {TOP_RIGHT, BOTTOM_LEFT}
 @export var placement: Placement = Placement.TOP_RIGHT
 @export var separation := 4
 @export var custom_format := ""
-@export_node_path(Slider) var custom_slider_path = NodePath():
+@export_node_path("Slider") var custom_slider_path = NodePath():
 	set(path):
 		custom_slider_path = path
 		update_configuration_warnings()
