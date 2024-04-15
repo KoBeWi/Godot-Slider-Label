@@ -4,14 +4,14 @@ extends Label
 const SLIDER_WARNING = "SliderLabel needs to be a child of a Slider control (HSlider or VSlider)."
 const SLIDER_WARNING2 = "custom_slider_path needs to point to a valid Slider control (HSlider or VSlider)."
 
-enum VisibilityRule {ON_CLICK, ON_HOVER, ON_FOCUS, ALWAYS}
-enum Placement {TOP_RIGHT, BOTTOM_LEFT}
+enum VisibilityRule { ON_CLICK, ON_HOVER, ON_FOCUS, ALWAYS }
+enum Placement { TOP_RIGHT, BOTTOM_LEFT }
 
 @export var visibility_rule: VisibilityRule = VisibilityRule.ON_HOVER
 @export var placement: Placement = Placement.TOP_RIGHT
 @export var separation := 4
 @export var custom_format := ""
-@export_node_path("Slider") var custom_slider_path = NodePath():
+@export_node_path("Slider") var custom_slider_path := NodePath():
 	set(path):
 		custom_slider_path = path
 		update_configuration_warnings()
@@ -41,7 +41,7 @@ func _ready() -> void:
 	if slider is VSlider:
 		vertical = true
 	
-	slider.value_changed.connect(update_with_discard)
+	slider.value_changed.connect(_update_label.unbind(1))
 	
 	if visibility_rule == VisibilityRule.ALWAYS:
 		show()
@@ -58,25 +58,22 @@ func _ready() -> void:
 				slider.focus_entered.connect(_on_slider_hover_focus.bind(true))
 				slider.focus_exited.connect(_on_slider_hover_focus.bind(false))
 	
-	update_label()
+	_update_label()
 
 func _on_slider_gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
 		visible = event.pressed
-		update_label()
+		_update_label()
 
 func _on_slider_hover_focus(hover: bool):
 	visible = hover
-	update_label()
+	_update_label()
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_PARENTED:
 		update_configuration_warnings()
 
-func update_with_discard(discard):
-	update_label()
-
-func update_label():
+func _update_label():
 	if not is_visible_in_tree():
 		return
 	
@@ -85,11 +82,15 @@ func update_label():
 	else:
 		text = custom_format % slider.value
 	
-	hide()
-	show()
-	size = Vector2()
+	reset_size()
+	var grabber_size := slider.get_theme_icon(&"grabber").get_size()
+	var center_grabber := slider.get_theme_constant(&"center_grabber") as bool
+	if center_grabber:
+		if vertical:
+			grabber_size.y = 0
+		else:
+			grabber_size.x = 0
 	
-	var grabber_size := slider.get_theme_icon(&"Grabber").get_size()
 	if vertical:
 		position.y = (1.0 - slider.ratio) * (slider.size.y - grabber_size.y) + grabber_size.y * 0.5 - size.y * 0.5
 		if placement == Placement.TOP_RIGHT:
