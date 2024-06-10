@@ -73,7 +73,7 @@ func _notification(what: int) -> void:
 	if what == NOTIFICATION_PARENTED:
 		update_configuration_warnings()
 	elif what == NOTIFICATION_VISIBILITY_CHANGED and is_visible_in_tree() and is_node_ready():
-		_update_label()
+		_update_label.call_deferred()
 
 func _update_label():
 	if not is_visible_in_tree():
