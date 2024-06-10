@@ -58,7 +58,7 @@ func _ready() -> void:
 				slider.focus_entered.connect(_on_slider_hover_focus.bind(true))
 				slider.focus_exited.connect(_on_slider_hover_focus.bind(false))
 	
-	_update_label()
+	_update_label.call_deferred()
 
 func _on_slider_gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
@@ -72,6 +72,8 @@ func _on_slider_hover_focus(hover: bool):
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_PARENTED:
 		update_configuration_warnings()
+	elif what == NOTIFICATION_VISIBILITY_CHANGED and is_visible_in_tree() and is_node_ready():
+		_update_label()
 
 func _update_label():
 	if not is_visible_in_tree():
