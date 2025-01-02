@@ -79,6 +79,9 @@ func _update_label():
 	if not is_visible_in_tree():
 		return
 	
+	if not slider:
+		return  # If the slider is not ready yet, cancel
+
 	if custom_format.is_empty():
 		text = str(slider.value)
 	else:
