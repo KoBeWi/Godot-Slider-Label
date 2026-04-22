@@ -12,7 +12,7 @@ After SliderLabel plugin is enabled, you can add a new SliderLabel node onto you
 
 ## Settings
 
-SliderLabel comes with a few custom settings that can be used to customize its behavior. Note that you can't change them at runtime.
+SliderLabel comes with a few custom settings that can be used to customize its behavior. They also have documentation.
 
 ### Visibility Rule
 
@@ -55,7 +55,7 @@ Specifies the custom format for the value display. Requires exactly one placehol
 
 ![](Media/ReadmeFormat.gif)
 
-### Custom Slider Path
+### Slider
 
 Overrides the default behavior of using the parent. Useful when you want to put the label next to your slider, e.g. in a container.
 
