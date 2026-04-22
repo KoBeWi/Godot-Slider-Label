@@ -4,10 +4,9 @@
 @tool
 class_name SliderLabel extends Label
 
-const SLIDER_WARNING = "SliderLabel needs to be a child of a Slider control (HSlider or VSlider), or has a Slider assigned in slider property."
+const _SLIDER_WARNING = "SliderLabel needs to be a child of a Slider control (HSlider or VSlider), or has a Slider assigned in slider property."
 
 enum VisibilityRule {
-	
 	## The label is visible when [Slider] is being dragged.
 	ON_DRAG,
 	## The label is visible when [Slider] is hovered.
@@ -94,7 +93,7 @@ func _notification(what: int) -> void:
 					hide()
 			
 		NOTIFICATION_THEME_CHANGED:
-			assert(_slider, SLIDER_WARNING)
+			assert(_slider, _SLIDER_WARNING)
 			_grabber_size = _slider.get_theme_icon(&"grabber").get_size()
 			_center_grabber = _slider.get_theme_constant(&"center_grabber")
 		
@@ -114,7 +113,7 @@ func _validate_property(property: Dictionary) -> void:
 
 func _get_configuration_warnings() -> PackedStringArray:
 	if not slider and not get_parent() is Slider:
-		return [SLIDER_WARNING]
+		return [_SLIDER_WARNING]
 	
 	return PackedStringArray()
 
@@ -126,7 +125,7 @@ func _update_slider():
 	if new_slider == _slider:
 		return
 	
-	assert(new_slider, SLIDER_WARNING)
+	assert(new_slider, _SLIDER_WARNING)
 	
 	if _slider:
 		_disconnect_signals()
