@@ -1,21 +1,33 @@
+## Label for displaying current value of a [Slider].
+##
+## [SliderLabel] displays value of a [Slider] node in real time. By default it will display the parent [Slider] and follow its grabber.
 @tool
 class_name SliderLabel extends Label
 
 const SLIDER_WARNING = "SliderLabel needs to be a child of a Slider control (HSlider or VSlider), or has a Slider assigned in slider property."
 
 enum VisibilityRule {
+	
+	## The label is visible when [Slider] is being dragged.
 	ON_DRAG,
+	## The label is visible when [Slider] is hovered.
 	ON_HOVER,
+	## The label is visible when [Slider] is hovered or dragged.
 	ON_HOVER_DRAG,
+	## The label is visible when [Slider] is focused.
 	ON_FOCUS,
+	## The label is always visible.
 	ALWAYS,
 }
 
 enum Placement {
+	## Top of HSlider, right of VSlider.
 	TOP_RIGHT,
+	## Bottom of HSlider, left of VSlider.
 	BOTTOM_LEFT
 }
 
+## Determines when the label is visible.
 @export var visibility_rule: VisibilityRule = VisibilityRule.ON_HOVER_DRAG:
 	set(vr):
 		if visibility_rule == vr:
@@ -25,6 +37,7 @@ enum Placement {
 			_disconnect_signals()
 			_connect_signals()
 
+## Determines label placement in relation to the [Slider]. Ignored when [member slider] is assigned.
 @export var placement: Placement = Placement.TOP_RIGHT:
 	set(p):
 		if placement == p:
@@ -32,6 +45,7 @@ enum Placement {
 		placement = p
 		_update_label()
 
+## The space in pixels between the label and the [Slider]. Ignored when [member slider] is assigned.
 @export var separation := 4:
 	set(s):
 		if separation == s:
@@ -39,6 +53,7 @@ enum Placement {
 		separation = s
 		_update_label()
 
+## Format string for displaying the text. [operator String.operator %] is used to format the slider's [member Range.value].
 @export var custom_format: String:
 	set(cf):
 		if custom_format == cf:
@@ -46,12 +61,14 @@ enum Placement {
 		custom_format = cf
 		_update_label()
 
+## Custom [Slider] node. If not assigned, the [SliderLabel] will try to use its parent. Assigning this property disables custom positioning.
 @export var slider: Slider:
 	set(s):
 		if slider == s:
 			return
 		slider = s
 		_update_slider()
+		notify_property_list_changed()
 		update_configuration_warnings()
 
 var _slider: Slider
@@ -92,6 +109,8 @@ func _notification(what: int) -> void:
 func _validate_property(property: Dictionary) -> void:
 	if property["name"] == "text":
 		property["usage"] = PROPERTY_USAGE_NONE
+	elif slider and property["name"] == "placement" or property["name"] == "separation":
+		property["usage"] |= PROPERTY_USAGE_READ_ONLY
 
 func _get_configuration_warnings() -> PackedStringArray:
 	if not slider and not get_parent() is Slider:

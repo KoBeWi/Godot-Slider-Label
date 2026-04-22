@@ -26,7 +26,7 @@ Controls when the label will display. The options are:
 
 ![](Media/ReadmeShowHover.gif)
 
-- On Hover (default) - the 2 above combined, i.e. slider is either hovered or dragged.
+- On Hover (default) - the 2 above combined, i.e. slider is hovered or dragged.
 
 - On Focus - label will display when it's currently focused. Works also with keyboard focus.
 
