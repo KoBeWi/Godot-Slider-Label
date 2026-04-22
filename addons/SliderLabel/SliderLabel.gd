@@ -3,10 +3,20 @@ class_name SliderLabel extends Label
 
 const SLIDER_WARNING = "SliderLabel needs to be a child of a Slider control (HSlider or VSlider), or has a Slider assigned in slider property."
 
-enum VisibilityRule { ON_CLICK, ON_HOVER, ON_FOCUS, ALWAYS }
-enum Placement { TOP_RIGHT, BOTTOM_LEFT }
+enum VisibilityRule {
+	ON_DRAG,
+	ON_HOVER,
+	ON_HOVER_DRAG,
+	ON_FOCUS,
+	ALWAYS,
+}
 
-@export var visibility_rule: VisibilityRule = VisibilityRule.ON_HOVER:
+enum Placement {
+	TOP_RIGHT,
+	BOTTOM_LEFT
+}
+
+@export var visibility_rule: VisibilityRule = VisibilityRule.ON_HOVER_DRAG:
 	set(vr):
 		if visibility_rule == vr:
 			return
@@ -45,6 +55,7 @@ enum Placement { TOP_RIGHT, BOTTOM_LEFT }
 		update_configuration_warnings()
 
 var _slider: Slider
+var _hover_drag_state: int
 
 var _grabber_size: Vector2
 var _center_grabber: bool
@@ -61,7 +72,7 @@ func _notification(what: int) -> void:
 			if not is_part_of_edited_scene():
 				if visibility_rule == VisibilityRule.ALWAYS:
 					show()
-					_update_label()
+					_update_label.call_deferred()
 				else:
 					hide()
 			
@@ -108,12 +119,22 @@ func _update_slider():
 func _disconnect_signals():
 	_slider.value_changed.disconnect(_update_label)
 	
-	if _slider.gui_input.is_connected(_on_slider_gui_input):
-		_slider.gui_input.disconnect(_on_slider_gui_input)
+	if _slider.drag_started.is_connected(_on_slider_hover_focus):
+		_slider.drag_started.disconnect(_on_slider_hover_focus)
+	if _slider.drag_ended.is_connected(_on_slider_hover_focus):
+		_slider.drag_ended.disconnect(_on_slider_hover_focus)
 	if _slider.mouse_entered.is_connected(_on_slider_hover_focus):
 		_slider.mouse_entered.disconnect(_on_slider_hover_focus)
 	if _slider.mouse_exited.is_connected(_on_slider_hover_focus):
 		_slider.mouse_exited.disconnect(_on_slider_hover_focus)
+	if _slider.drag_started.is_connected(_on_slider_hover_drag):
+		_slider.drag_started.disconnect(_on_slider_hover_drag)
+	if _slider.drag_ended.is_connected(_on_slider_hover_drag):
+		_slider.drag_ended.disconnect(_on_slider_hover_drag)
+	if _slider.mouse_entered.is_connected(_on_slider_hover_drag):
+		_slider.mouse_entered.disconnect(_on_slider_hover_drag)
+	if _slider.mouse_exited.is_connected(_on_slider_hover_drag):
+		_slider.mouse_exited.disconnect(_on_slider_hover_drag)
 	if _slider.focus_entered.is_connected(_on_slider_hover_focus):
 		_slider.focus_entered.disconnect(_on_slider_hover_focus)
 	if _slider.focus_exited.is_connected(_on_slider_hover_focus):
@@ -123,11 +144,17 @@ func _connect_signals():
 	_slider.value_changed.connect(_update_label.unbind(1))
 	
 	match visibility_rule:
-		VisibilityRule.ON_CLICK:
-			_slider.gui_input.connect(_on_slider_gui_input)
+		VisibilityRule.ON_DRAG:
+			_slider.drag_started.connect(_on_slider_hover_focus.bind(true))
+			_slider.drag_ended.connect(_on_slider_hover_focus.bind(false).unbind(1))
 		VisibilityRule.ON_HOVER:
 			_slider.mouse_entered.connect(_on_slider_hover_focus.bind(true))
 			_slider.mouse_exited.connect(_on_slider_hover_focus.bind(false))
+		VisibilityRule.ON_HOVER_DRAG:
+			_slider.mouse_entered.connect(_on_slider_hover_drag.bind(true, 1))
+			_slider.mouse_exited.connect(_on_slider_hover_drag.bind(false, 1))
+			_slider.drag_started.connect(_on_slider_hover_drag.bind(true, 2))
+			_slider.drag_ended.connect(_on_slider_hover_drag.bind(false, 2).unbind(1))
 		VisibilityRule.ON_FOCUS:
 			_slider.focus_entered.connect(_on_slider_hover_focus.bind(true))
 			_slider.focus_exited.connect(_on_slider_hover_focus.bind(false))
@@ -167,12 +194,15 @@ func _update_label() -> void:
 		else:
 			position.y = _slider.size.y + separation
 
-func _on_slider_gui_input(event: InputEvent) -> void:
-	var mb := event as InputEventMouseButton
-	if mb:
-		visible = mb.pressed
-		_update_label()
-
 func _on_slider_hover_focus(hover: bool):
 	visible = hover
+	_update_label()
+
+func _on_slider_hover_drag(hover: bool, mask: int):
+	if hover:
+		_hover_drag_state |= mask
+	else:
+		_hover_drag_state ^= mask
+	
+	visible = bool(_hover_drag_state)
 	_update_label()
