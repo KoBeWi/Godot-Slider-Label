@@ -108,7 +108,7 @@ func _notification(what: int) -> void:
 func _validate_property(property: Dictionary) -> void:
 	if property["name"] == "text":
 		property["usage"] = PROPERTY_USAGE_NONE
-	elif slider and property["name"] == "placement" or property["name"] == "separation":
+	elif slider and (property["name"] == "placement" or property["name"] == "separation"):
 		property["usage"] |= PROPERTY_USAGE_READ_ONLY
 
 func _get_configuration_warnings() -> PackedStringArray:
